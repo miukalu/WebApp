@@ -6,4 +6,4 @@ logs/
 *.log
 Pipfile
 Pipfile.lock
-requirements.txt
+django_react/requirements.txt
