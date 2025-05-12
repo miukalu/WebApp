@@ -51,17 +51,29 @@ class Family(models.Model):
 class FamilyMember(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     family = models.ForeignKey(Family, on_delete=models.CASCADE)
-    role = models.CharField(max_length=50)
-
+    role = models.CharField(max_length=50, default='member')
     def __str__(self):
         return f"{self.user.full_name} in {self.family.name}"
 
 class FamilyRequests(models.Model):
+    PENDING = 'в ожидании'
+    ACCEPTED = 'принят'
+    DECLINED = 'отклонён'
+    STATUS_CHOICES = [
+        (PENDING, 'В ожидании'),
+        (ACCEPTED, 'Принят'),
+        (DECLINED, 'Отклонён'),
+    ]
     family = models.ForeignKey(Family, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
+    create_date = models.DateField(default=timezone.now)
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default=PENDING
+    )
     def __str__(self):
-        return f"Request from {self.user.full_name} to {self.family.name}"
+        return f"Request from {self.user.full_name} to {self.family.name} (Status: {self.status})"
 
 class Place(models.Model):
     coordinates = models.CharField(max_length=30)
@@ -78,7 +90,7 @@ class Reviews(models.Model):
     mark = models.IntegerField()
     text = models.CharField(max_length=500)
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
-
+    id = models.AutoField(primary_key=True)
     def __str__(self):
         return f"Review by {self.user.full_name} for {self.place.name}"
 
