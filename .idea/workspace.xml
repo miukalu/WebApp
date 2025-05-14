@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dadd712c-9523-4195-a0e9-a0f292c6e7a2" name="Changes" comment="ai">
+    <list default="true" id="dadd712c-9523-4195-a0e9-a0f292c6e7a2" name="Changes" comment="3аааааа">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django_react/TravelFam/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/django_react/TravelFam/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/django_react/TravelFam/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/django_react/django_react/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/django_react/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/django_react/django_react/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/django_react/urls.py" afterDir="false" />
@@ -128,7 +126,10 @@
       <workItem from="1746475745183" duration="6000" />
       <workItem from="1747071456771" duration="1286000" />
       <workItem from="1747175594636" duration="2083000" />
-      <workItem from="1747221142013" duration="11709000" />
+      <workItem from="1747221142013" duration="12141000" />
+      <workItem from="1747240715225" duration="28000" />
+      <workItem from="1747240794187" duration="27000" />
+      <workItem from="1747240828627" duration="6472000" />
     </task>
     <task id="LOCAL-00001" summary="3">
       <option name="closed" value="true" />
@@ -154,7 +155,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747071543979</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="3аааааа">
+      <option name="closed" value="true" />
+      <created>1747240117394</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1747240117394</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -174,7 +183,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="3" />
     <MESSAGE value="ai" />
-    <option name="LAST_COMMIT_MESSAGE" value="ai" />
+    <MESSAGE value="3аааааа" />
+    <option name="LAST_COMMIT_MESSAGE" value="3аааааа" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

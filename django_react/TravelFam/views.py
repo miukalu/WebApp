@@ -1,13 +1,19 @@
 from rest_framework import viewsets, generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render, redirect
 from django.http import Http404
+from django.contrib import messages
+import jwt
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from rest_framework.exceptions import PermissionDenied
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import User, Family, FamilyMember, FamilyRequests, Place, Reviews, Trip, TripPlace
 from .serializers import (UserRegistrationSerializer, UserSerializer, FamilySerializer, FamilyMemberSerializer, FamilyRequestSerializer,
                           PlaceSerializer, ReviewSerializer, TripSerializer, UserLogoutSerializer, ChangePasswordSerializer)
+import requests
+from django.urls import reverse
 
 class UserLoginView(TokenObtainPairView):
     permission_classes = [permissions.AllowAny]
@@ -335,3 +341,330 @@ class ReviewFilterView(generics.ListAPIView):
                 raise Http404("Reviews does not exist")
             return reviews
         return Reviews.objects.all()
+
+
+def refresh_token(request):
+    """Refresh the access token using the refresh token stored in the session."""
+    if 'refresh_token' not in request.session:
+        return False
+    response = requests.post('http://127.0.0.1:8000/api/token/refresh/',
+                             json={'refresh': request.session['refresh_token']})
+    if response.status_code == 200:
+        tokens = response.json()
+        request.session['access_token'] = tokens['access']
+        return True
+    return False
+
+
+def register_view(request):
+    """Render registration page and handle registration form submission."""
+    if request.method == 'POST':
+        data = {
+            'email': request.POST.get('email'),
+            'login': request.POST.get('login'),
+            'full_name': request.POST.get('full_name'),
+            'password': request.POST.get('password')
+        }
+        response = requests.post('http://127.0.0.1:8000/api/register/', json=data)
+        if response.status_code == 201:
+            messages.success(request, 'Регистрация успешна! Пожалуйста, войдите.')
+            return redirect('login')
+        else:
+            messages.error(request, response.json().get('detail', 'Ошибка регистрации'))
+    return render(request, 'register.html')
+
+
+def login_view(request):
+    """Render login page and handle login form submission."""
+    if request.method == 'POST':
+        data = {
+            'email': request.POST.get('email'),
+            'password': request.POST.get('password')
+        }
+        response = requests.post('http://127.0.0.1:8000/api/login/', json=data)
+        if response.status_code == 200:
+            tokens = response.json()
+            request.session['access_token'] = tokens['access']
+            request.session['refresh_token'] = tokens['refresh']
+            # Декодируем access_token для получения user_id
+            try:
+                decoded_token = jwt.decode(tokens['access'], options={"verify_signature": False})
+                user_id = decoded_token.get('user_id')
+                if user_id is None:
+                    messages.error(request, 'Ошибка: user_id не найден в токене.')
+                    return render(request, 'login.html')
+                request.session['user_id'] = user_id
+            except jwt.InvalidTokenError:
+                messages.error(request, 'Ошибка декодирования токена.')
+                return render(request, 'login.html')
+            messages.success(request, 'Вход успешен!')
+            return redirect('profile')
+        else:
+            messages.error(request, 'Неверный email или пароль')
+    return render(request, 'login.html')
+
+
+def logout_view(request):
+    """Handle logout by clearing session tokens."""
+    if request.method == 'POST':
+        if 'access_token' in request.session:
+            response = requests.post(
+                'http://127.0.0.1:8000/api/logout/',
+                headers={'Authorization': f'Bearer {request.session["access_token"]}'}
+            )
+            if response.status_code == 200:
+                messages.success(request, 'Вы успешно вышли.')
+            else:
+                messages.error(request, 'Ошибка при выходе.')
+        request.session.flush()
+        return redirect('login')
+    return render(request, 'logout.html')
+
+
+def profile_view(request):
+    """Render user profile page."""
+    if 'access_token' not in request.session or 'user_id' not in request.session:
+        messages.error(request, 'Пожалуйста, войдите в систему.')
+        return redirect('login')
+
+    user_id = request.session['user_id']
+    headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+    response = requests.get(f'http://127.0.0.1:8000/api/user/{user_id}/', headers=headers)
+
+    if response.status_code == 200:
+        user = response.json()
+        return render(request, 'profile.html', {'user': user})
+    else:
+        messages.error(request, 'Ошибка загрузки профиля.')
+        return redirect('login')
+
+
+def change_password_view(request):
+    """Render change password page and handle password change."""
+    if 'access_token' not in request.session:
+        messages.error(request, 'Пожалуйста, войдите в систему.')
+        return redirect('login')
+
+    user_id = request.session.get('user_id', 1)
+    headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+
+    if request.method == 'POST':
+        data = {
+            'current_password': request.POST.get('current_password'),
+            'new_password': request.POST.get('new_password')
+        }
+        response = requests.post(
+            f'http://127.0.0.1:8000/api/user/{user_id}/change_password/',
+            headers=headers,
+            json=data
+        )
+        if response.status_code == 200:
+            messages.success(request, 'Пароль успешно изменён.')
+            return redirect('profile')
+        elif response.status_code == 401 and refresh_token(request):
+            headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+            response = requests.post(
+                f'http://127.0.0.1:8000/api/user/{user_id}/change_password/',
+                headers=headers,
+                json=data
+            )
+            if response.status_code == 200:
+                messages.success(request, 'Пароль успешно изменён.')
+                return redirect('profile')
+        messages.error(request, response.json().get('error', 'Ошибка смены пароля'))
+
+    return render(request, 'change_password.html')
+
+
+def families_view(request):
+    """Render list of user's families."""
+    if 'access_token' not in request.session:
+        messages.error(request, 'Пожалуйста, войдите в систему.')
+        return redirect('login')
+
+    user_id = request.session.get('user_id', 1)
+    headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+    response = requests.get(f'http://127.0.0.1:8000/api/families/{user_id}/', headers=headers)
+
+    if response.status_code == 401 and refresh_token(request):
+        headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+        response = requests.get(f'http://127.0.0.1:8000/api/families/{user_id}/', headers=headers)
+
+    if response.status_code == 200:
+        families = response.json()
+        return render(request, 'families.html', {'families': families})
+    else:
+        messages.error(request, 'Ошибка загрузки семей.')
+        return redirect('login')
+
+
+def family_members_view(request, family_id):
+    """Render list of family members."""
+    if 'access_token' not in request.session:
+        messages.error(request, 'Пожалуйста, войдите в систему.')
+        return redirect('login')
+
+    headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+    response = requests.get(f'http://127.0.0.1:8000/api/family/{family_id}/members/', headers=headers)
+
+    if response.status_code == 401 and refresh_token(request):
+        headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+        response = requests.get(f'http://127.0.0.1:8000/api/family/{family_id}/members/', headers=headers)
+
+    if response.status_code == 200:
+        members = response.json()
+        return render(request, 'family_members.html', {'members': members, 'family_id': family_id})
+    else:
+        messages.error(request, 'Ошибка загрузки участников семьи.')
+        return redirect('families')
+
+
+def create_family_view(request):
+    """Render create family page and handle family creation."""
+    if 'access_token' not in request.session:
+        messages.error(request, 'Пожалуйста, войдите в систему.')
+        return redirect('login')
+
+    headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+
+    if request.method == 'POST':
+        data = {
+            'name': request.POST.get('name'),
+            'description': request.POST.get('description')
+        }
+        response = requests.post('http://127.0.0.1:8000/api/family/', headers=headers, json=data)
+        if response.status_code == 201:
+            messages.success(request, 'Семья успешно создана.')
+            return redirect('families')
+        elif response.status_code == 401 and refresh_token(request):
+            headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+            response = requests.post('http://127.0.0.1:8000/api/family/', headers=headers, json=data)
+            if response.status_code == 201:
+                messages.success(request, 'Семья успешно создана.')
+                return redirect('families')
+        messages.error(request, response.json().get('detail', 'Ошибка создания семьи'))
+
+    return render(request, 'create_family.html')
+
+
+def trips_view(request):
+    """Render list of user's trips."""
+    if 'access_token' not in request.session:
+        messages.error(request, 'Пожалуйста, войдите в систему.')
+        return redirect('login')
+
+    user_id = request.session.get('user_id', 1)
+    headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+    response = requests.get(f'http://127.0.0.1:8000/api/trips/{user_id}/', headers=headers)
+
+    if response.status_code == 401 and refresh_token(request):
+        headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+        response = requests.get(f'http://127.0.0.1:8000/api/trips/{user_id}/', headers=headers)
+
+    if response.status_code == 200:
+        trips = response.json()
+        return render(request, 'trips.html', {'trips': trips})
+    else:
+        messages.error(request, 'Ошибка загрузки поездок.')
+        return redirect('login')
+
+
+def repeat_trip_view(request, trip_id):
+    """Handle trip repeat action."""
+    if 'access_token' not in request.session:
+        messages.error(request, 'Пожалуйста, войдите в систему.')
+        return redirect('login')
+
+    headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+    response = requests.post(f'http://127.0.0.1:8000/api/trip/{trip_id}/repeat/', headers=headers)
+
+    if response.status_code == 201:
+        messages.success(request, 'Поездка успешно скопирована.')
+        return redirect('trips')
+    elif response.status_code == 401 and refresh_token(request):
+        headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+        response = requests.post(f'http://127.0.0.1:8000/api/trip/{trip_id}/repeat/', headers=headers)
+        if response.status_code == 201:
+            messages.success(request, 'Поездка успешно скопирована.')
+            return redirect('trips')
+    messages.error(request, response.json().get('error', 'Ошибка копирования поездки'))
+    return redirect('trips')
+
+
+def places_view(request):
+    """Render list of places with category filter."""
+    if 'access_token' not in request.session:
+        messages.error(request, 'Пожалуйста, войдите в систему.')
+        return redirect('login')
+
+    headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+    category = request.GET.get('category', '')
+    url = 'http://127.0.0.1:8000/api/places/filter/'
+    if category:
+        url += f'?category={category}'
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 401 and refresh_token(request):
+        headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+        response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        places = response.json()
+        return render(request, 'places.html', {'places': places, 'category': category})
+    elif response.status_code == 404:
+        messages.error(request, 'Места с такой категорией не найдены.')
+        return render(request, 'places.html', {'places': [], 'category': category})
+    else:
+        messages.error(request, 'Ошибка загрузки мест.')
+        return redirect('login')
+
+
+def place_reviews_view(request, place_id):
+    """Render reviews for a specific place."""
+    if 'access_token' not in request.session:
+        messages.error(request, 'Пожалуйста, войдите в систему.')
+        return redirect('login')
+
+    headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+    response = requests.get(f'http://127.0.0.1:8000/api/place/{place_id}/reviews/', headers=headers)
+
+    if response.status_code == 401 and refresh_token(request):
+        headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+        response = requests.get(f'http://127.0.0.1:8000/api/place/{place_id}/reviews/', headers=headers)
+
+    if response.status_code == 200:
+        reviews = response.json()
+        return render(request, 'place_reviews.html', {'reviews': reviews, 'place_id': place_id})
+    else:
+        messages.error(request, 'Ошибка загрузки отзывов.')
+        return redirect('places')
+
+
+def reviews_view(request):
+    """Render list of reviews with mark filter."""
+    if 'access_token' not in request.session:
+        messages.error(request, 'Пожалуйста, войдите в систему.')
+        return redirect('login')
+
+    headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+    mark = request.GET.get('mark', '')
+    url = 'http://127.0.0.1:8000/api/reviews/filter/'
+    if mark:
+        url += f'?mark={mark}'
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 401 and refresh_token(request):
+        headers = {'Authorization': f'Bearer {request.session["access_token"]}'}
+        response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        reviews = response.json()
+        return render(request, 'reviews.html', {'reviews': reviews, 'mark': mark})
+    elif response.status_code == 404:
+        messages.error(request, 'Отзывы с такой оценкой не найдены.')
+        return render(request, 'reviews.html', {'reviews': [], 'mark': mark})
+    else:
+        messages.error(request, 'Ошибка загрузки отзывов.')
+        return redirect('login')
