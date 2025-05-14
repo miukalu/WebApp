@@ -1,0 +1,15 @@
+body {
+    background-color: #f8f9fa;
+}
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.container {
+    max-width: 800px;
+}
+.list-group-item {
+    margin-bottom: 10px;
+}
+.alert {
+    margin-bottom: 20px;
+}

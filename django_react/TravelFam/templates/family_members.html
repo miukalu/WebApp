@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Участники семьи{% endblock %}
+
+{% block content %}
+<h2>Участники семьи</h2>
+{% if members %}
+    <ul class="list-group">
+        {% for member in members %}
+            <li class="list-group-item">
+                {{ member.user.full_name }} (Роль: {{ member.role }})
+                {% if member.role == 'admin' %}
+                    <span class="badge bg-success">Админ</span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>В этой семье нет участников.</p>
+{% endif %}
+<a href="{% url 'families' %}" class="btn btn-secondary mt-3">Назад к семьям</a>
+{% endblock %}

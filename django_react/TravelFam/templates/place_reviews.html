@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Отзывы о месте{% endblock %}
+
+{% block content %}
+<h2>Отзывы о месте</h2>
+{% if reviews %}
+    <ul class="list-group">
+        {% for review in reviews %}
+            <li class="list-group-item">
+                <strong>{{ review.user.full_name }}</strong>: {{ review.text }} (Оценка: {{ review.mark }}/5)
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Отзывов пока нет.</p>
+{% endif %}
+<a href="{% url 'places' %}" class="btn btn-secondary mt-3">Назад к местам</a>
+{% endblock %}

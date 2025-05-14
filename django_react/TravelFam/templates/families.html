@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Мои семьи{% endblock %}
+
+{% block content %}
+<h2>Мои семьи</h2>
+{% if families %}
+    <ul class="list-group">
+        {% for family in families %}
+            <li class="list-group-item">
+                {{ family.name }} (Создано: {{ family.create_date|date:"d.m.Y" }})
+                <a href="{% url 'family-members' family.id %}" class="btn btn-sm btn-info">Участники</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Вы не состоите ни в одной семье.</p>
+{% endif %}
+<a href="{% url 'create-family' %}" class="btn btn-primary mt-3">Создать семью</a>
+{% endblock %}

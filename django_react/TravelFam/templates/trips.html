@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Мои поездки{% endblock %}
+
+{% block content %}
+<h2>Мои поездки</h2>
+{% if trips %}
+    <ul class="list-group">
+        {% for trip in trips %}
+            <li class="list-group-item">
+                {{ trip.name }} ({{ trip.city }}, {{ trip.country }}) 
+                с {{ trip.start_date|date:"d.m.Y" }} по {{ trip.end_date|date:"d.m.Y" }}
+                <span class="badge bg-{% if trip.status == 'planned' %}primary{% else %}success{% endif %}">{{ trip.status }}</span>
+                <a href="{% url 'repeat-trip' trip.id %}" class="btn btn-sm btn-warning">Повторить</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>У вас нет поездок.</p>
+{% endif %}
+{% endblock %}

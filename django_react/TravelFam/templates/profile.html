@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<h2>Профиль</h2>
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">{{ user.full_name }}</h5>
+        <p class="card-text"><strong>Email:</strong> {{ user.email }}</p>
+        <p class="card-text"><strong>Логин:</strong> {{ user.login }}</p>
+        <p class="card-text"><strong>Предпочтения:</strong> {{ user.preferences|default:"Не указаны" }}</p>
+        <a href="{% url 'change-password' %}" class="btn btn-primary">Сменить пароль</a>
+    </div>
+</div>
+{% endblock %}
