@@ -41,6 +41,15 @@ class FamilySerializer(serializers.ModelSerializer):
     class Meta:
         model = Family
         fields = ['id', 'name', 'create_date']
+    def create(self, validated_data):
+        user = self.context['request'].user
+        family = Family.objects.create(**validated_data)
+        FamilyMember.objects.create(
+            user=user,
+            family=family,
+            role='creator'
+         )
+        return family
 
 class FamilyMemberSerializer(serializers.ModelSerializer):
     class Meta:
@@ -71,4 +80,18 @@ class ReviewSerializer(serializers.ModelSerializer):
 class TripSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trip
-        fields = ['id', 'name', 'country', 'city', 'start_date', 'end_date', 'family_member', 'family', 'status']
+        fields = ['id', 'name', 'country', 'city', 'start_date', 'end_date', 'family', 'family_member', 'status', 'places']
+        read_only_fields = ['family_member']
+
+    def create(self, validated_data):
+        request = self.context['request']
+        family = validated_data['family']
+        try:
+            family_member = FamilyMember.objects.get(
+                user=request.user,
+                family=family
+            )
+        except FamilyMember.DoesNotExist:
+            raise serializers.ValidationError("You are not a member of this family")
+        validated_data['family_member'] = family_member
+        return super().create(validated_data)

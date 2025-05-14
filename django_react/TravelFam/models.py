@@ -103,13 +103,12 @@ class Trip(models.Model):
     family_member = models.ForeignKey(FamilyMember, on_delete=models.CASCADE)
     family = models.ForeignKey(Family, on_delete=models.CASCADE)
     status = models.CharField(max_length=50)
-
+    places = models.ManyToManyField(Place, through='TripPlace', related_name='trips', blank=True)
     def __str__(self):
         return self.name
 
 class TripPlace(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
-
     def __str__(self):
         return f"{self.place.name} in {self.trip.name}"

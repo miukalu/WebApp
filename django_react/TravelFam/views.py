@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from rest_framework.exceptions import PermissionDenied
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import User, Family, FamilyMember, FamilyRequests, Place, Reviews, Trip
+from .models import User, Family, FamilyMember, FamilyRequests, Place, Reviews, Trip, TripPlace
 from .serializers import (UserRegistrationSerializer, UserSerializer, FamilySerializer, FamilyMemberSerializer, FamilyRequestSerializer,
                           PlaceSerializer, ReviewSerializer, TripSerializer, UserLogoutSerializer, ChangePasswordSerializer)
 
@@ -82,11 +82,16 @@ class FamilyViewSet(viewsets.ModelViewSet):
     serializer_class = FamilySerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
 class FamilyMemberViewSet(viewsets.ModelViewSet):
     queryset = FamilyMember.objects.all()
     serializer_class = FamilyMemberSerializer
     permission_classes = [permissions.IsAuthenticated]
-    lookup_field = 'pk'  # Используем pk для совместимости с URL
+    lookup_field = 'pk'
 
     def get_queryset(self):
         family_id = self.kwargs.get('family_id')
@@ -108,9 +113,14 @@ class FamilyMemberViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        if not request.user.is_superuser:
-            if instance.user != request.user:
-                raise PermissionDenied("You can only remove yourself from the family")
+        current_user_member = get_object_or_404(FamilyMember, user=request.user, family_id=self.kwargs.get('family_id'))
+        if request.user.is_superuser:
+            pass
+        elif current_user_member.role == 'creator':
+            pass
+        elif instance.user != request.user:
+            raise PermissionDenied("You can only remove yourself from the family")
+
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -192,41 +202,95 @@ class ReviewViewSet(viewsets.ModelViewSet):
         else:
             serializer.save(user=self.request.user)
 
+
 class TripViewSet(viewsets.ModelViewSet):
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
     @action(detail=True, methods=['post'])
     def repeat(self, request, pk=None):
-        try:
-            original_trip = self.get_object()
-            family_member = FamilyMember.objects.get(
-                user=request.user,
-                family=original_trip.family
-            )
-            new_trip = Trip.objects.create(
-                name=f"{original_trip.name} (Copy)",
-                country=original_trip.country,
-                city=original_trip.city,
-                start_date=original_trip.start_date,
-                end_date=original_trip.end_date,
-                family=original_trip.family,
-                family_member=family_member,
-                status='planned'
-            )
-            serializer = self.get_serializer(new_trip)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except FamilyMember.DoesNotExist:
+        original_trip = self.get_object()
+        if not original_trip.family.familymember_set.filter(user=request.user).exists():
             return Response(
                 {"error": "You are not a member of this family"},
                 status=status.HTTP_403_FORBIDDEN
             )
-        except Exception as e:
+        new_trip = Trip.objects.create(
+            name=f"{original_trip.name} (Copy)",
+            country=original_trip.country,
+            city=original_trip.city,
+            start_date=original_trip.start_date,
+            end_date=original_trip.end_date,
+            family=original_trip.family,
+            family_member=FamilyMember.objects.get(
+                user=request.user,
+                family=original_trip.family
+            ),
+            status='planned'
+        )
+        for trip_place in original_trip.trip_places.all():
+            TripPlace.objects.create(
+                trip=new_trip,
+                place=trip_place.place
+            )
+        return Response(
+            self.get_serializer(new_trip).data,
+            status=status.HTTP_201_CREATED
+        )
+
+    @action(detail=True, methods=['post'])
+    def add_place(self, request, pk=None):
+        trip = self.get_object()
+        place_id = request.data.get('place_id')
+        if not place_id:
             return Response(
-                {"error": str(e)},
+                {"error": "place_id is required"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        if not trip.family.familymember_set.filter(user=request.user).exists():
+            return Response(
+                {"error": "You are not a member of this family"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        place = get_object_or_404(Place, id=place_id)
+        TripPlace.objects.get_or_create(trip=trip, place=place)
+        return Response(
+            {"status": "Place added"},
+            status=status.HTTP_201_CREATED
+        )
+
+    @action(detail=True, methods=['delete'])
+    def remove_place(self, request, pk=None):
+        trip = self.get_object()
+        place_id = request.data.get('place_id')
+        if not place_id:
+            return Response(
+                {"error": "place_id is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if not trip.family.familymember_set.filter(user=request.user).exists():
+            return Response(
+                {"error": "You are not a member of this family"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        place = get_object_or_404(Place, id=place_id)
+        TripPlace.objects.filter(trip=trip, place=place).delete()
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )
+
+    @action(detail=True, methods=['get'])
+    def places(self, request, pk=None):
+        trip = self.get_object()
+        trip_places = TripPlace.objects.filter(trip=trip).select_related('place')
+        serializer = PlaceSerializer([tp.place for tp in trip_places], many=True)
+        return Response(serializer.data)
 
 class UserFamiliesView(generics.ListAPIView):
     serializer_class = FamilySerializer
