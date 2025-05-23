@@ -72,6 +72,10 @@ class FamilyRequests(models.Model):
         choices=STATUS_CHOICES,
         default=PENDING
     )
+
+    class Meta:
+        unique_together = ('family', 'user')
+
     def __str__(self):
         return f"Request from {self.user.full_name} to {self.family.name} (Status: {self.status})"
 

@@ -15,8 +15,9 @@
     <ul class="list-group">
         {% for place in places %}
             <li class="list-group-item">
-                {{ place.name }} ({{ place.category }}) - {{ place.cost }} руб.
+                {{ place.name }} ({{ place.category }}) - {{ place.cost }} $.
                 <p>{{ place.description|truncatewords:20 }}</p>
+                <p>Координаты: {{place.coordinates|default:"Не указаны"}}</p>
                 <a href="{% url 'place-reviews' place.id %}" class="btn btn-sm btn-info">Отзывы</a>
             </li>
         {% endfor %}

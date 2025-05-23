@@ -4,18 +4,31 @@
 {% block title %}Мои семьи{% endblock %}
 
 {% block content %}
-<h2>Мои семьи</h2>
-{% if families %}
-    <ul class="list-group">
-        {% for family in families %}
-            <li class="list-group-item">
-                {{ family.name }} (Создано: {{ family.create_date|date:"d.m.Y" }})
-                <a href="{% url 'family-members' family.id %}" class="btn btn-sm btn-info">Участники</a>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>Вы не состоите ни в одной семье.</p>
-{% endif %}
-<a href="{% url 'create-family' %}" class="btn btn-primary mt-3">Создать семью</a>
+<div class="container">
+    <h2>Мои семьи</h2>
+    {% if families %}
+        <ul class="list-group">
+            {% for family in families %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{family.name}}</span>
+                    <a href="{% url 'family-members' family_id=family.id %}" class="btn btn-sm btn-info">Участники</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Вы не состоите ни в одной семье.</p>
+    {% endif %}
+
+    <h4 class="mt-4">Отправить запрос в семью</h4>
+    <form method="POST" action="{% url 'families' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="family_id" class="form-label">ID семьи:</label>
+            <input type="number" name="family_id" id="family_id" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Отправить запрос</button>
+    </form>
+
+    <a href="{% url 'create-family' %}" class="btn btn-primary mt-3">Создать семью</a>
+</div>
 {% endblock %}

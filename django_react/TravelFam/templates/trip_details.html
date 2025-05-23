@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Подробности поездки{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Подробности поездки: {{ trip.name }}</h2>
+    <p>Страна: {{ trip.country }}</p>
+    <p>Город: {{ trip.city }}</p>
+    <p>С {{ trip.start_date }} {% if trip.end_date %}по {{ trip.end_date }}{% endif %}</p>
+    <p>
+        Статус:
+        {% if trip.status == 'planned' %}
+            <span class="badge bg-primary">{{ trip.status }}</span>
+        {% elif trip.status == 'completed' %}
+            <span class="badge bg-success">{{ trip.status }}</span>
+        {% else %}
+            <span class="badge bg-warning">{{ trip.status }}</span>
+        {% endif %}
+    </p>
+    <p>Семья: {{ trip.family_name }}</p>
+
+    <!-- Форма для изменения статуса -->
+    <h4 class="mt-4">Изменить статус поездки</h4>
+    <form method="post" action="{% url 'trip-details' trip_id=trip.id %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="status" class="form-label">Новый статус:</label>
+            <select name="status" id="status" class="form-select" required>
+                <option value="" disabled {% if not trip.status %}selected{% endif %}>Выберите статус</option>
+                <option value="planned" {% if trip.status == 'planned' %}selected{% endif %}>planned</option>
+                <option value="in_progress" {% if trip.status == 'in_progress' %}selected{% endif %}>in_progress</option>
+                <option value="completed" {% if trip.status == 'completed' %}selected{% endif %}>completed</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Изменить статус</button>
+    </form>
+
+    <!-- Список мест -->
+    <h4 class="mt-4">Места в поездке</h4>
+    {% if places %}
+        <ul class="list-group mt-2">
+            {% for place in places %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ place.name }}</span>
+                    <form method="POST" action="{% url 'trip-remove-place' trip_id=trip.id place_id=place.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Вы уверены, что хотите удалить это место?')">Удалить</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Нет добавленных мест.</p>
+    {% endif %}
+
+    <!-- Форма добавления места -->
+    <h4 class="mt-4">Добавить место</h4>
+    <form method="POST" action="{% url 'trip-add-place' trip_id=trip.id %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <select name="place_id" id="place_id" class="form-select" required>
+                <option value="">Выберите место</option>
+                {% for place in available_places %}
+                    <option value="{{ place.id }}">{{ place.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Добавить место</button>
+    </form>
+
+    <a href="{% url 'trips' %}" class="btn btn-secondary mt-3">Назад</a>
+</div>
+{% endblock %}

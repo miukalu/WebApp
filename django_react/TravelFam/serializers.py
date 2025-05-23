@@ -63,8 +63,21 @@ class FamilyRequestSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'status']
 
     def create(self, validated_data):
-
-        validated_data['family_id'] = self.context['view'].kwargs['family_id']
+        family_id = self.context['view'].kwargs['family_id']
+        user = validated_data['user']
+        if FamilyMember.objects.filter(user=user, family_id=family_id).exists():
+            raise serializers.ValidationError(
+                {'error': 'Вы уже являетесь членом этой семьи'}
+            )
+        if FamilyRequests.objects.filter(
+            user=user,
+            family_id=family_id,
+            status=FamilyRequests.PENDING
+        ).exists():
+            raise serializers.ValidationError(
+                {'error': 'У вас уже есть ожидающий запрос в эту семью'}
+            )
+        validated_data['family_id'] = family_id
         return super().create(validated_data)
 
 class PlaceSerializer(serializers.ModelSerializer):
@@ -73,9 +86,24 @@ class PlaceSerializer(serializers.ModelSerializer):
         fields = ['id', 'coordinates', 'name', 'cost', 'category', 'description']
 
 class ReviewSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
+    place = serializers.PrimaryKeyRelatedField(queryset=Place.objects.all(), required=True)
+
     class Meta:
         model = Reviews
         fields = ['id', 'user', 'place', 'mark', 'text']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['user'] = {
+            'id': instance.user.id,
+            'login': instance.user.login
+        }
+        representation['place'] = {
+            'id': instance.place.id,
+            'name': instance.place.name
+        }
+        return representation
 
 class TripSerializer(serializers.ModelSerializer):
     class Meta:

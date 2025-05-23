@@ -5,6 +5,7 @@
 
 {% block content %}
 <h2>Отзывы</h2>
+<a href="{% url 'create-review' %}" class="btn btn-primary mb-3">Создать отзыв</a>
 <form method="GET" action="{% url 'reviews' %}" class="mb-3">
     <div class="input-group">
         <select class="form-select" name="mark">
@@ -20,7 +21,7 @@
     <ul class="list-group">
         {% for review in reviews %}
             <li class="list-group-item">
-                <strong>{{ review.user.full_name }}</strong> о {{ review.place.name }}: {{ review.text }} (Оценка: {{ review.mark }}/5)
+                <strong>{{ review.user.login }}</strong> о месте {{ review.place.name }}: {{ review.text }} (Оценка: {{ review.mark }}/5)
             </li>
         {% endfor %}
     </ul>

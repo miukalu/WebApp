@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Создать отзыв{% endblock %}
+
+{% block content %}
+<h2>Создать отзыв</h2>
+<form method="POST" action="{% url 'create-review' %}">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="place" class="form-label">Место</label>
+        <select name="place" id="place" class="form-select" required>
+            <option value="">Выберите место</option>
+            {% for place in places %}
+                <option value="{{ place.id }}">{{ place.name }} ({{ place.category }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="mark" class="form-label">Оценка</label>
+        <select name="mark" id="mark" class="form-select" required>
+            <option value="">Выберите оценку</option>
+            {% for i in "12345" %}
+                <option value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="text" class="form-label">Текст отзыва</label>
+        <textarea name="text" id="text" class="form-control" rows="4" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Отправить отзыв</button>
+    <a href="{% url 'reviews' %}" class="btn btn-secondary">Отмена</a>
+</form>
+{% endblock %}

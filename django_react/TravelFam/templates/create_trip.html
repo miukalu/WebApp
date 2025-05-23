@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h2>Создать новую поездку</h2>
+    <form method="post" action="{% url 'create-trip' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Название поездки</label>
+            <input type="text" class="form-control" id="name" name="name" required maxlength="50">
+        </div>
+        <div class="mb-3">
+            <label for="country" class="form-label">Страна</label>
+            <input type="text" class="form-control" id="country" name="country" required maxlength="50">
+        </div>
+        <div class="mb-3">
+            <label for="city" class="form-label">Город</label>
+            <input type="text" class="form-control" id="city" name="city" required maxlength="50">
+        </div>
+        <div class="mb-3">
+            <label for="start_date" class="form-label">Дата начала</label>
+            <input type="date" class="form-control" id="start_date" name="start_date" required>
+        </div>
+        <div class="mb-3">
+            <label for="end_date" class="form-label">Дата окончания</label>
+            <input type="date" class="form-control" id="end_date" name="end_date">
+        </div>
+        <div class="mb-3">
+            <label for="family" class="form-label">Семья</label>
+            <select class="form-control" id="family" name="family" required>
+                <option value="">Выберите семью</option>
+                {% for family in families %}
+                    <option value="{{ family.id }}">{{ family.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="status" class="form-label">Статус</label>
+            <select class="form-control" id="status" name="status">
+                <option value="planned">Запланировано</option>
+                <option value="ongoing">В процессе</option>
+                <option value="completed">Завершено</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Создать поездку</button>
+        <a href="{% url 'trips' %}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

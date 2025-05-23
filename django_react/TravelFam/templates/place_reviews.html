@@ -9,7 +9,7 @@
     <ul class="list-group">
         {% for review in reviews %}
             <li class="list-group-item">
-                <strong>{{ review.user.full_name }}</strong>: {{ review.text }} (Оценка: {{ review.mark }}/5)
+                <strong>{{ review.user.login}}</strong>: {{ review.text }} (Оценка: {{ review.mark }}/5)
             </li>
         {% endfor %}
     </ul>

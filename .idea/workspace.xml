@@ -4,8 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dadd712c-9523-4195-a0e9-a0f292c6e7a2" name="Changes" comment="3аааааа">
+    <list default="true" id="dadd712c-9523-4195-a0e9-a0f292c6e7a2" name="Changes" comment="4 not full">
+      <change afterPath="$PROJECT_DIR$/django_react/TravelFam/templates/create_review.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/django_react/TravelFam/templates/create_trip.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/django_react/TravelFam/templates/trip_details.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/django_react/TravelFam/templates/update_profile.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django_react/TravelFam/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django_react/TravelFam/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django_react/TravelFam/static/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/static/css/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django_react/TravelFam/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django_react/TravelFam/templates/families.html" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/templates/families.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django_react/TravelFam/templates/family_members.html" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/templates/family_members.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django_react/TravelFam/templates/place_reviews.html" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/templates/place_reviews.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django_react/TravelFam/templates/places.html" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/templates/places.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django_react/TravelFam/templates/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/templates/profile.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django_react/TravelFam/templates/reviews.html" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/templates/reviews.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django_react/TravelFam/templates/trips.html" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/templates/trips.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/django_react/TravelFam/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/django_react/TravelFam/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/TravelFam/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/django_react/django_react/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/django_react/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/django_react/django_react/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/django_react/django_react/urls.py" afterDir="false" />
@@ -19,6 +35,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -48,6 +65,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
@@ -129,7 +147,18 @@
       <workItem from="1747221142013" duration="12141000" />
       <workItem from="1747240715225" duration="28000" />
       <workItem from="1747240794187" duration="27000" />
-      <workItem from="1747240828627" duration="6472000" />
+      <workItem from="1747240828627" duration="11805000" />
+      <workItem from="1747291403385" duration="2000" />
+      <workItem from="1747291484520" duration="4631000" />
+      <workItem from="1747337238925" duration="3452000" />
+      <workItem from="1747377418029" duration="4653000" />
+      <workItem from="1747393791352" duration="4371000" />
+      <workItem from="1747418660300" duration="8737000" />
+      <workItem from="1747690098058" duration="82000" />
+      <workItem from="1747822921102" duration="7737000" />
+      <workItem from="1747842158332" duration="2768000" />
+      <workItem from="1747908364266" duration="28748000" />
+      <workItem from="1747996593354" duration="5768000" />
     </task>
     <task id="LOCAL-00001" summary="3">
       <option name="closed" value="true" />
@@ -163,7 +192,31 @@
       <option name="project" value="LOCAL" />
       <updated>1747240117394</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="4 not full">
+      <option name="closed" value="true" />
+      <created>1747247929656</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1747247929656</updated>
+    </task>
+    <task id="LOCAL-00006" summary="4 not full">
+      <option name="closed" value="true" />
+      <created>1747248066870</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1747248066870</updated>
+    </task>
+    <task id="LOCAL-00007" summary="4 not full">
+      <option name="closed" value="true" />
+      <created>1747248097650</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1747248097650</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -184,7 +237,8 @@
     <MESSAGE value="3" />
     <MESSAGE value="ai" />
     <MESSAGE value="3аааааа" />
-    <option name="LAST_COMMIT_MESSAGE" value="3аааааа" />
+    <MESSAGE value="4 not full" />
+    <option name="LAST_COMMIT_MESSAGE" value="4 not full" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

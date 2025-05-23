@@ -1,22 +1,42 @@
 {% extends 'base.html' %}
-{% load static %}
-
-{% block title %}Мои поездки{% endblock %}
-
 {% block content %}
-<h2>Мои поездки</h2>
-{% if trips %}
-    <ul class="list-group">
-        {% for trip in trips %}
-            <li class="list-group-item">
-                {{ trip.name }} ({{ trip.city }}, {{ trip.country }}) 
-                с {{ trip.start_date|date:"d.m.Y" }} по {{ trip.end_date|date:"d.m.Y" }}
-                <span class="badge bg-{% if trip.status == 'planned' %}primary{% else %}success{% endif %}">{{ trip.status }}</span>
-                <a href="{% url 'repeat-trip' trip.id %}" class="btn btn-sm btn-warning">Повторить</a>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>У вас нет поездок.</p>
-{% endif %}
+<div class="container">
+    <h2>Мои поездки</h2>
+    <a href="{% url 'create-trip' %}" class="btn btn-primary mb-3">Создать поездку</a>
+
+    <!-- Список поездок -->
+    {% if trips %}
+        <ul class="list-group mt-4">
+            {% for trip in trips %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5>{{ trip.name }}</h5>
+                        <p>
+                            Статус:
+                            {% if trip.status == 'planned' %}
+                                <span class="badge bg-primary">{{ trip.status }}</span>
+                            {% elif trip.status == 'completed' %}
+                                <span class="badge bg-success">{{ trip.status }}</span>
+                            {% else %}
+                                <span class="badge bg-warning">{{ trip.status }}</span>
+                            {% endif %}
+                        </p>
+                        <p>Семья: {{ trip.family_name }}</p>
+                    </div>
+                    <div>
+                        <a href="{% url 'repeat-trip' trip_id=trip.id %}" class="btn btn-secondary btn-sm me-2">Повторить</a>
+                        <a href="{% url 'trip-details' trip_id=trip.id %}" class="btn btn-info btn-sm">Подробности</a>
+                        <!-- Кнопка удаления -->
+                        <form action="{% url 'delete-trip' trip_id=trip.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Вы уверены, что хотите удалить поездку {{ trip.name }}?');">Удалить</button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="mt-4">У вас пока нет поездок.</p>
+    {% endif %}
+</div>
 {% endblock %}

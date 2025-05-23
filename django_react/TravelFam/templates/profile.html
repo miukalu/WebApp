@@ -12,6 +12,7 @@
         <p class="card-text"><strong>Логин:</strong> {{ user.login }}</p>
         <p class="card-text"><strong>Предпочтения:</strong> {{ user.preferences|default:"Не указаны" }}</p>
         <a href="{% url 'change-password' %}" class="btn btn-primary">Сменить пароль</a>
+        <a href="{% url 'update-profile' %}" class="btn btn-secondary">Обновить данные</a>
     </div>
 </div>
 {% endblock %}

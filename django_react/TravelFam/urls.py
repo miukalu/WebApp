@@ -21,7 +21,7 @@ urlpatterns = [
                        views.UserViewSet.as_view({'post': 'change_password'}), name='change-password'),
                   path('api/logout/', views.UserLogoutView.as_view(), name='logout'),
 
-                  path('api/user/<int:user_id>/', views.UserViewSet.as_view({'get': 'retrieve', 'put': 'update', }),
+                  path('api/user/<int:user_id>/', views.UserViewSet.as_view({'get': 'retrieve', 'put': 'update'}),
                        name='user-detail'),
 
                   path('api/family/<int:user_id>/', views.UserFamiliesView.as_view(), name='user-families'),
@@ -42,6 +42,7 @@ urlpatterns = [
                        views.FamilyRequestViewSet.as_view({'post': 'decline'}), name='decline-family-request'),
 
                   path('api/trips/<int:user_id>/', views.UserTripsView.as_view(), name='user-trips'),
+                  path('api/trip/<int:pk>/', views.TripViewSet.as_view({'get': 'retrieve'}), name='trip-detail'),
                   path('api/trip/<int:pk>/repeat/', views.TripViewSet.as_view({'post': 'repeat'}),
                        name='repeat-trip'),
 
@@ -68,12 +69,20 @@ urlpatterns = [
                   path('logout/', views.logout_view, name='logout'),
                   path('profile/', views.profile_view, name='profile'),
                   path('change-password/', views.change_password_view, name='change-password'),
+                  path('update-profile/', views.update_profile_view, name='update-profile'),
                   path('families/', views.families_view, name='families'),
                   path('family/<int:family_id>/members/', views.family_members_view, name='family-members'),
                   path('create-family/', views.create_family_view, name='create-family'),
                   path('trips/', views.trips_view, name='trips'),
-                  path('trip/<int:trip_id>/repeat/', views.repeat_trip_view, name='repeat-trip'),
+                  path('trips/create-trip/', views.create_trip_view, name='create-trip'),
+                  path('trip/<int:trip_id>/repeat/', views.repeat_trip_custom_view, name='repeat-trip'),
+                  path('trip/<int:trip_id>/details/', views.trip_details_view, name='trip-details'),
+                  path('trip/<int:trip_id>/delete/', views.delete_trip_view, name='delete-trip'),
+                  path('trip/<int:trip_id>/add-place/', views.trip_add_place_view, name='trip-add-place'),
+                  path('trip/<int:trip_id>/remove-place/<int:place_id>/', views.trip_remove_place_view,
+                       name='trip-remove-place'),
                   path('places/', views.places_view, name='places'),
                   path('place/<int:place_id>/reviews/', views.place_reviews_view, name='place-reviews'),
                   path('reviews/', views.reviews_view, name='reviews'),
+                  path('reviews/create/', views.create_review_view, name='create-review'),
               ] + router.urls
